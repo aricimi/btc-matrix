@@ -1,0 +1,581 @@
+data:text/html;charset=utf-8,
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <title>Bitcoin Trading Matrix Dashboard</title>
+
+    <!-- iOS Web App & Home Screen Integration -->
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="BTC Matrix">
+    <meta name="theme-color" content="#0a0f1d">
+    <link rel="apple-touch-icon" href="https://img.icons8.com/color/180/bitcoin--v1.png">
+
+    <style>
+        :root {
+            --bg-dark: #0a0f1d;
+            --bg-card: #111a2e;
+            --bg-card-alt: #1a2642;
+            --accent-blue: #2563eb;
+            --cyan-glow: #38bdf8;
+            --green-glow: #22c55e;
+            --green-bg: rgba(34, 197, 94, 0.12);
+            --green-border: #16a34a;
+            --yellow-glow: #eab308;
+            --yellow-bg: rgba(234, 179, 8, 0.12);
+            --yellow-border: #ca8a04;
+            --red-glow: #ef4444;
+            --red-bg: rgba(239, 68, 68, 0.12);
+            --red-border: #dc2626;
+            --text-main: #f8fafc;
+            --text-muted: #94a3b8;
+            --border-color: rgba(56, 189, 248, 0.2);
+            --font-sans: -apple-system, BlinkMacSystemFont, "SF Pro Display", "Segoe UI", Roboto, sans-serif;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            -webkit-tap-highlight-color: transparent;
+            font-family: var(--font-sans);
+        }
+
+        body {
+            background-color: var(--bg-dark);
+            color: var(--text-main);
+            min-height: 100vh;
+            padding: env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 480px;
+            padding: 16px;
+            padding-bottom: 40px;
+        }
+
+        header {
+            text-align: center;
+            margin-bottom: 18px;
+            padding-top: 8px;
+        }
+
+        .app-title {
+            font-size: 1.35rem;
+            font-weight: 800;
+            letter-spacing: 0.5px;
+            background: linear-gradient(135deg, #ffffff 0%, var(--cyan-glow) 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+
+        .subtitle {
+            font-size: 0.75rem;
+            color: var(--text-muted);
+            margin-top: 4px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            font-weight: 600;
+        }
+
+        .preset-bar {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 16px;
+            overflow-x: auto;
+            padding-bottom: 4px;
+            scrollbar-width: none;
+        }
+
+        .preset-bar::-webkit-scrollbar {
+            display: none;
+        }
+
+        .preset-btn {
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            color: var(--text-main);
+            padding: 8px 12px;
+            border-radius: 10px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            white-space: nowrap;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            flex: 1;
+            text-align: center;
+        }
+
+        .preset-btn:active {
+            transform: scale(0.96);
+            background: var(--bg-card-alt);
+        }
+
+        .card {
+            background: var(--bg-card);
+            border-radius: 16px;
+            padding: 18px;
+            margin-bottom: 16px;
+            border: 1px solid var(--border-color);
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4);
+        }
+
+        .card-header {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 14px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+            padding-bottom: 10px;
+        }
+
+        .card-icon {
+            width: 28px;
+            height: 28px;
+            background: rgba(56, 189, 248, 0.15);
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.9rem;
+            color: var(--cyan-glow);
+        }
+
+        .card-title {
+            font-size: 0.95rem;
+            font-weight: 700;
+            color: #ffffff;
+            letter-spacing: 0.3px;
+        }
+
+        .form-group {
+            margin-bottom: 14px;
+        }
+
+        .form-group:last-child {
+            margin-bottom: 0;
+        }
+
+        label {
+            display: block;
+            font-size: 0.78rem;
+            color: var(--text-muted);
+            margin-bottom: 6px;
+            font-weight: 600;
+        }
+
+        .input-wrapper {
+            position: relative;
+            display: flex;
+            align-items: center;
+        }
+
+        input[type="number"], select {
+            width: 100%;
+            background: var(--bg-card-alt);
+            border: 1px solid rgba(255, 255, 255, 0.12);
+            border-radius: 10px;
+            padding: 12px 14px;
+            color: #ffffff;
+            font-size: 0.95rem;
+            font-weight: 600;
+            outline: none;
+            transition: border-color 0.2s ease, box-shadow 0.2s ease;
+            -webkit-appearance: none;
+            appearance: none;
+        }
+
+        select {
+            padding-right: 36px;
+            background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='16' height='16' fill='%2338bdf8' viewBox='0 0 16 16'><path d='M7.247 11.14 2.451 5.658C1.885 5.013 2.345 4 3.204 4h9.592a1 1 0 0 1 .753 1.659l-4.796 5.48a1 1 0 0 1-1.506 0z'/></svg>");
+            background-repeat: no-repeat;
+            background-position: right 14px center;
+        }
+
+        input[type="number"]:focus, select:focus {
+            border-color: var(--cyan-glow);
+            box-shadow: 0 0 0 3px rgba(56, 189, 248, 0.15);
+        }
+
+        .unit-tag {
+            position: absolute;
+            right: 14px;
+            font-size: 0.8rem;
+            color: var(--text-muted);
+            pointer-events: none;
+            font-weight: 600;
+        }
+
+        .btn-calc {
+            width: 100%;
+            background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%);
+            color: #ffffff;
+            border: none;
+            padding: 16px;
+            border-radius: 14px;
+            font-size: 1.05rem;
+            font-weight: 800;
+            letter-spacing: 0.5px;
+            cursor: pointer;
+            box-shadow: 0 6px 20px rgba(37, 99, 235, 0.4);
+            margin-top: 8px;
+            margin-bottom: 20px;
+            transition: all 0.2s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+        }
+
+        .btn-calc:active {
+            transform: scale(0.98);
+            box-shadow: 0 2px 10px rgba(37, 99, 235, 0.2);
+        }
+
+        .results-wrapper {
+            display: none;
+            animation: fadeIn 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .metrics-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 8px;
+            margin-bottom: 16px;
+            background: rgba(10, 15, 29, 0.8);
+            padding: 12px;
+            border-radius: 12px;
+            border: 1px solid rgba(255, 255, 255, 0.08);
+        }
+
+        .metric-box {
+            text-align: center;
+        }
+
+        .metric-label {
+            font-size: 0.65rem;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            font-weight: 700;
+            margin-bottom: 4px;
+        }
+
+        .metric-value {
+            font-size: 0.88rem;
+            font-weight: 700;
+            color: var(--cyan-glow);
+        }
+
+        .result-card {
+            border-radius: 16px;
+            padding: 18px;
+            margin-bottom: 16px;
+            border-width: 1.5px;
+            border-style: solid;
+            position: relative;
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4);
+        }
+
+        .state-green {
+            background: var(--green-bg);
+            border-color: var(--green-border);
+            color: #ffffff;
+        }
+        .state-green .res-title { color: var(--green-glow); }
+
+        .state-yellow {
+            background: var(--yellow-bg);
+            border-color: var(--yellow-border);
+            color: #ffffff;
+        }
+        .state-yellow .res-title { color: var(--yellow-glow); }
+
+        .state-red {
+            background: var(--red-bg);
+            border-color: var(--red-border);
+            color: #ffffff;
+        }
+        .state-red .res-title { color: var(--red-glow); }
+
+        .res-header {
+            font-size: 0.7rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            color: var(--text-muted);
+            margin-bottom: 6px;
+            font-weight: 700;
+        }
+
+        .res-title {
+            font-size: 1.05rem;
+            font-weight: 800;
+            margin-bottom: 10px;
+            line-height: 1.35;
+        }
+
+        .res-message {
+            font-size: 0.88rem;
+            line-height: 1.5;
+            color: #e2e8f0;
+            font-weight: 400;
+        }
+
+        footer {
+            text-align: center;
+            font-size: 0.7rem;
+            color: var(--text-muted);
+            margin-top: 10px;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <header>
+            <div class="app-title">
+                <span>⚡</span> BITCOIN TRADING MATRIX
+            </div>
+            <div class="subtitle">Institutional & Technical Strategy Engine</div>
+        </header>
+
+        <div class="preset-bar">
+            <button class="preset-btn" onclick="applyPreset('bullish')">🟢 Bullish Reversal</button>
+            <button class="preset-btn" onclick="applyPreset('ceiling')">✋ Ceiling Trap</button>
+            <button class="preset-btn" onclick="applyPreset('breakdown')">❌ Breakdown Slide</button>
+        </div>
+
+        <div class="card">
+            <div class="card-header">
+                <div class="card-icon">🌐</div>
+                <div class="card-title">1. Global Macro Inputs</div>
+            </div>
+
+            <div class="form-group">
+                <label for="fedwatch">CME FedWatch: Pause/Cut Probability %</label>
+                <div class="input-wrapper">
+                    <input type="number" id="fedwatch" value="78" min="0" max="100" step="0.1">
+                    <span class="unit-tag">%</span>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label for="etfFlow">CoinGlass: 7-Day Institutional ETF Flow</label>
+                <select id="etfFlow">
+                    <option value="Solid Green" selected>Solid Green</option>
+                    <option value="Mixed/Flat/Red">Mixed/Flat/Red</option>
+                    <option value="Deep Red">Deep Red</option>
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label for="fearGreed">CoinMarketCap: Fear & Greed Index Score</label>
+                <div class="input-wrapper">
+                    <input type="number" id="fearGreed" value="55" min="0" max="100">
+                    <span class="unit-tag">Score</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="card">
+            <div class="card-header">
+                <div class="card-icon">📈</div>
+                <div class="card-title">2. Binance Live Chart Inputs</div>
+            </div>
+
+            <div class="form-group">
+                <label for="timeframe">Chart Timeframe Selection</label>
+                <select id="timeframe">
+                    <option value="5m">5-Minute (5m)</option>
+                    <option value="15m">15-Minute (15m)</option>
+                    <option value="1h" selected>1-Hour (1h)</option>
+                    <option value="1d">1-Day (1d)</option>
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label for="priceA">Current BTC Price (A)</label>
+                <input type="number" id="priceA" value="65000" step="any">
+            </div>
+
+            <div class="form-group">
+                <label for="pinkB">Pink Line / Moving Average (B)</label>
+                <input type="number" id="pinkB" value="64850" step="any">
+            </div>
+
+            <div class="form-group">
+                <label for="yellowC">Top Yellow Line / Upper Band (C)</label>
+                <input type="number" id="yellowC" value="66200" step="any">
+            </div>
+
+            <div class="form-group">
+                <label for="candleSetup">Visual Candle Setup</label>
+                <select id="candleSetup">
+                    <option value="Green Reversal (Above Pink Line)" selected>Green Reversal (Above Pink Line)</option>
+                    <option value="Red Breakdown (Below Pink Line)">Red Breakdown (Below Pink Line)</option>
+                    <option value="Ceiling Chasing (At Yellow Line)">Ceiling Chasing (At Yellow Line)</option>
+                </select>
+            </div>
+        </div>
+
+        <button class="btn-calc" onclick="runCalculationEngine()">
+            <span>⚡ CALCULATE STRATEGY OUTCOME</span>
+        </button>
+
+        <div id="resultsWrapper" class="results-wrapper">
+            <div class="metrics-grid">
+                <div class="metric-box">
+                    <div class="metric-label">Trend Ratio (A/B)</div>
+                    <div class="metric-value" id="valTrendRatio">1.0023</div>
+                </div>
+                <div class="metric-box">
+                    <div class="metric-label">Ceiling Ratio (A/C)</div>
+                    <div class="metric-value" id="valCeilingRatio">0.9818</div>
+                </div>
+                <div class="metric-box">
+                    <div class="metric-label">+2% Target</div>
+                    <div class="metric-value" id="valTargetPrice">€66,300.00</div>
+                </div>
+            </div>
+
+            <div id="box1" class="result-card state-green">
+                <div class="res-header">Master Weekly Outlook & Strategy Mode</div>
+                <div class="res-title" id="box1Title">🟢 WEEKLY TIDE: BULLISH ACCUMULATION</div>
+                <div class="res-message" id="box1Message">Safety net is fully active...</div>
+            </div>
+
+            <div id="box2" class="result-card state-green">
+                <div class="res-header">Immediate Execution Action</div>
+                <div class="res-title" id="box2Title">🟢 TARGET ACTION: EXECUTE BUY ORDER</div>
+                <div class="res-message" id="box2Message">Support confirmed on timeframe...</div>
+            </div>
+        </div>
+
+        <footer>
+            Standalone HTML5 App • Optimized for iOS Safari
+        </footer>
+    </div>
+
+    <script>
+        function runCalculationEngine() {
+            const fedWatch = parseFloat(document.getElementById('fedwatch').value) || 0;
+            const etfFlow = document.getElementById('etfFlow').value;
+            const fearGreed = parseFloat(document.getElementById('fearGreed').value) || 0;
+
+            const priceA = parseFloat(document.getElementById('priceA').value) || 0;
+            const pinkB = parseFloat(document.getElementById('pinkB').value) || 1;
+            const yellowC = parseFloat(document.getElementById('yellowC').value) || 1;
+            const candleSetup = document.getElementById('candleSetup').value;
+
+            const trendRatio = priceA / pinkB;
+            const ceilingRatio = priceA / yellowC;
+            const profitTarget = priceA * 1.02;
+
+            const formattedTarget = profitTarget.toLocaleString('en-US', { 
+                minimumFractionDigits: 2, 
+                maximumFractionDigits: 2 
+            });
+
+            document.getElementById('valTrendRatio').innerText = trendRatio.toFixed(4);
+            document.getElementById('valCeilingRatio').innerText = ceilingRatio.toFixed(4);
+            document.getElementById('valTargetPrice').innerText = '€' + formattedTarget;
+
+            const box1 = document.getElementById('box1');
+            const box1Title = document.getElementById('box1Title');
+            const box1Message = document.getElementById('box1Message');
+
+            const isGreenLight = (fedWatch >= 75) && (etfFlow === "Solid Green") && (fearGreed >= 45 && fearGreed <= 65);
+            const isRedLight = (fedWatch < 60) || (etfFlow === "Deep Red") || (fearGreed > 80 || fearGreed < 25);
+
+            if (isGreenLight) {
+                box1.className = 'result-card state-green';
+                box1Title.innerText = '🟢 WEEKLY TIDE: BULLISH ACCUMULATION';
+                box1Message.innerText = 'Safety net is fully active. Wall Street institutions are aggressively buying. Strategy Mode: SAFE TO TRADE HOURLY/DAILY DIPS. Your €250 (25% of capital) allocation carries high protection from the macro trend.';
+            } else if (isRedLight) {
+                box1.className = 'result-card state-red';
+                box1Title.innerText = '🔴 WEEKLY TIDE: MACRO DISTRIBUTION';
+                box1Message.innerText = 'Extreme danger zone or surprise interest rate hike fear brewing. Strategy Mode: STUCK CASH STAND-DOWN. Do not trade. Keep all €1,000 capital safely in cash.';
+            } else {
+                box1.className = 'result-card state-yellow';
+                box1Title.innerText = '🟡 WEEKLY TIDE: HEAVY CONSOLIDATION';
+                box1Message.innerText = 'Safety net is NOT active. Wall Street has stepped off the gas and retail greed is high. Strategy Mode: HIGH RISK FOR DAILY CHURN. Hold your €250 cash allocation on the sidelines. Do not trade frequently. Wait for a massive mid-week drop to execute a single swing trade.';
+            }
+
+            const box2 = document.getElementById('box2');
+            const box2Title = document.getElementById('box2Title');
+            const box2Message = document.getElementById('box2Message');
+
+            const isBuyTrigger = (candleSetup === "Green Reversal (Above Pink Line)") && (trendRatio >= 1.000 && trendRatio <= 1.003);
+            const isCeilingTrap = (candleSetup === "Ceiling Chasing (At Yellow Line)") || (ceilingRatio >= 0.998);
+
+            if (isBuyTrigger) {
+                box2.className = 'result-card state-green';
+                box2Title.innerText = '🟢 TARGET ACTION: EXECUTE BUY ORDER';
+                box2Message.innerText = `Support confirmed on the selected timeframe. Deploy your €80 simulation block on Revolut right now. Set manual exit target alert at exactly: €${formattedTarget}.`;
+            } else if (isCeilingTrap) {
+                box2.className = 'result-card state-yellow';
+                box2Title.innerText = '✋ TARGET ACTION: STAND DOWN / CEILING TRAP';
+                box2Message.innerText = 'Price is grinding the absolute ceiling of the current timeframe bands. Chasing out of FOMO. Do not buy here; wait for a structural pullback to the pink baseline.';
+            } else {
+                box2.className = 'result-card state-red';
+                box2Title.innerText = '❌ TARGET ACTION: STAY OUT / BREAKDOWN LIVE';
+                box2Message.innerText = 'Price has closed solid candle bodies completely below the pink line floor. The short-term trend is bleeding out greedy traders. Let the market drop further to find a real floor.';
+            }
+
+            const resultsWrapper = document.getElementById('resultsWrapper');
+            resultsWrapper.style.display = 'block';
+            resultsWrapper.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+        }
+
+        function applyPreset(presetType) {
+            if (presetType === 'bullish') {
+                document.getElementById('fedwatch').value = 78;
+                document.getElementById('etfFlow').value = "Solid Green";
+                document.getElementById('fearGreed').value = 55;
+                document.getElementById('timeframe').value = "1h";
+                document.getElementById('priceA').value = 65000;
+                document.getElementById('pinkB').value = 64850;
+                document.getElementById('yellowC').value = 67000;
+                document.getElementById('candleSetup').value = "Green Reversal (Above Pink Line)";
+            } else if (presetType === 'ceiling') {
+                document.getElementById('fedwatch').value = 72;
+                document.getElementById('etfFlow').value = "Mixed/Flat/Red";
+                document.getElementById('fearGreed').value = 68;
+                document.getElementById('timeframe').value = "15m";
+                document.getElementById('priceA').value = 66000;
+                document.getElementById('pinkB').value = 64500;
+                document.getElementById('yellowC').value = 66100;
+                document.getElementById('candleSetup').value = "Ceiling Chasing (At Yellow Line)";
+            } else if (presetType === 'breakdown') {
+                document.getElementById('fedwatch').value = 55;
+                document.getElementById('etfFlow').value = "Deep Red";
+                document.getElementById('fearGreed').value = 82;
+                document.getElementById('timeframe').value = "1d";
+                document.getElementById('priceA').value = 63000;
+                document.getElementById('pinkB').value = 63500;
+                document.getElementById('yellowC').value = 65000;
+                document.getElementById('candleSetup').value = "Red Breakdown (Below Pink Line)";
+            }
+            runCalculationEngine();
+        }
+
+        window.onload = function() {
+            runCalculationEngine();
+        };
+    </script>
+</body>
+</html>
